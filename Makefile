@@ -26,8 +26,12 @@ $(addprefix $(BUILD_DIR)/,$(addsuffix .o,$(basename $(1))))
 endef
 
 src = $(addprefix src/,\
+  libs/storage.c \
+  libs/lz4.c \
   display.c \
+  flash.c \
   timing.c \
+  header.c \
   slots.c \
   main.c \
 )
