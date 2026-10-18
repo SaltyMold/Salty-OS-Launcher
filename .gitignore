@@ -1,0 +1,6 @@
+.vscode/
+output/
+sim/
+node_modules/
+package.json
+package-lock.json
