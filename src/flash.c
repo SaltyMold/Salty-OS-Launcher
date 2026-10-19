@@ -1,18 +1,5 @@
 #include "flash.h"
 
-#include <string.h>
-
-// Layout of the external flash
-#define FLASH_BASE 0x90000000u
-#define SECTOR_SIZE 0x10000u  // 64 KiB
-#define PAGE_SIZE 256u        // a write must never cross a page boundary
-// Epsilon numbers sectors as: 8 x 4 KiB, 1 x 32 KiB, then the 64 KiB ones.
-#define FIRST_64K_SECTOR 8
-
-// System calls (svcall.h)
-#define SVC_FLASH_ERASE_SECTOR 30
-#define SVC_FLASH_WRITE_MEMORY 32
-
 // Do a system call with 4 arguments (r0 to r3), return r0.
 #define SVC(number, a0, a1, a2, a3)                                 \
 ({                                                                  \
