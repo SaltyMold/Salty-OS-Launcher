@@ -15,16 +15,16 @@
 })
 
 // The firmware answers with a boolean in the low byte of r0.
-static nw_flash_status_t status_from(uint32_t r0) {
-    return (r0 & 0xFF) ? NW_FLASH_OK : NW_FLASH_FAILED;
+static flash_flash_status_t flash_status_from(uint32_t r0) {
+    return (r0 & 0xFF) ? FLASH_OK : FLASH_FAILED;
 }
 
-nw_flash_status_t nw_flash_erase_sector(uint32_t addr) {
+flash_flash_status_t flash_erase_sector(uint32_t addr) {
     uint32_t sector = FIRST_64K_SECTOR + (addr - FLASH_BASE) / SECTOR_SIZE;
-    return status_from(SVC(SVC_FLASH_ERASE_SECTOR, sector, 1, 0, 0));
+    return flash_status_from(SVC(SVC_FLASH_ERASE_SECTOR, sector, 1, 0, 0));
 }
 
-nw_flash_status_t nw_flash_write(uint32_t dst, const void *src, uint32_t len) {
+flash_flash_status_t flash_write(uint32_t dst, const void *src, uint32_t len) {
     const uint8_t *data = src;
     uint32_t end = dst + len;
     
@@ -37,12 +37,12 @@ nw_flash_status_t nw_flash_write(uint32_t dst, const void *src, uint32_t len) {
         if (chunk > end - dst) chunk = end - dst;
         
         memcpy(buffer, data, chunk);
-        if (status_from(SVC(SVC_FLASH_WRITE_MEMORY, dst, buffer, chunk, 1)) != NW_FLASH_OK) {
-            return NW_FLASH_FAILED;
+        if (flash_status_from(SVC(SVC_FLASH_WRITE_MEMORY, dst, buffer, chunk, 1)) != FLASH_OK) {
+            return FLASH_FAILED;
         }
         
         dst += chunk;
         data += chunk;
     }
-    return NW_FLASH_OK;
+    return FLASH_OK;
 }

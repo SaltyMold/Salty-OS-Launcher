@@ -29,6 +29,9 @@ typedef enum { SLOT_A, SLOT_B, SLOT_UNKNOWN } slot_t;
 __attribute__((naked)) void jump(unsigned long addr);
 
 // Return the current slot
-slot_t current_slot(void);
+slot_t slot_current(void);
+
+// Return the name of the slot
+char *slot_name(slot_t slot);
 
 #endif

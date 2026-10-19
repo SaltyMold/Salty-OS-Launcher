@@ -1,4 +1,4 @@
-#include "header.h"
+#include "info.h"
 #include "libs/eadk.h"
 #include "libs/storage.h"
 #include "slots.h"
@@ -22,16 +22,19 @@ Then use the app as a launcher
 
 
 int main(void) {
-    // slot_t slot = current_slot();
-    // char version[9];
-    // nw_software_version(version);
+    char version[9];
+    slot_t slot;
+    info_model_t model;
+    
+    info_software_version(version);
+    slot = slot_current();
+    model = info_model();
     
     eadk_display_push_rect_uniform(eadk_screen_rect, eadk_color_white);
-    
-    const char *id = nw_fcc_id();
-    eadk_display_draw_string(id ? id : "NULL", (eadk_point_t){0, 0}, true, eadk_color_white, eadk_color_black);
-    
-    while (!eadk_keyboard_key_down(eadk_keyboard_scan(), eadk_key_back)) eadk_timing_msleep(50);
+    eadk_display_draw_string(version, (eadk_point_t){0, 0}, true, eadk_color_white, eadk_color_black);
+    eadk_display_draw_string(slot_name(slot), (eadk_point_t){0, 20}, true, eadk_color_white, eadk_color_black);
+    eadk_display_draw_string(info_model_name(model), (eadk_point_t){0, 40}, true, eadk_color_white, eadk_color_black);
 
+    while (!eadk_keyboard_key_down(eadk_keyboard_scan(), eadk_key_back)) eadk_timing_msleep(50);
     return 0;
 }

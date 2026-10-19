@@ -31,7 +31,7 @@ src = $(addprefix src/,\
   display.c \
   flash.c \
   timing.c \
-  header.c \
+  info.c \
   slots.c \
   main.c \
 )

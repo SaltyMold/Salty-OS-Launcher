@@ -14,28 +14,30 @@ typedef struct {
     uint32_t apps_ram_start, apps_ram_end;
     uint32_t name_flash_start, name_flash_end;
     uint32_t footer;                            // 0xDEC0EDFE
-} nw_userland_t;
+} info_userland_t;
 
 // Header of the running firmware.
-const nw_userland_t *nw_userland(void);
+const info_userland_t *info_userland(void);
 
 // Copy the version into `out` (always null-terminated).
-void nw_software_version(char out[9]);
+void info_software_version(char out[9]);
 
 /*--------------------------------------------------*/
 
 typedef enum {
-  NW_MODEL_UNKNOWN,
-  NW_MODEL_N0110,
-  NW_MODEL_N0115,
-  NW_MODEL_N0120
-} nw_model_t;
+  INFO_MODEL_UNKNOWN,
+  INFO_MODEL_N0110,
+  INFO_MODEL_N0115,
+  INFO_MODEL_N0120
+} info_model_t;
 
 // Returns fcc id
-const char *nw_fcc_id(void);
+const char *info_fcc_id(void);
 
 // Returns model
 // n0115 has no fcc id so it returns UNKNOWN
-nw_model_t nw_model(void);
+info_model_t info_model(void);
+
+char *info_model_name(info_model_t model);
 
 #endif

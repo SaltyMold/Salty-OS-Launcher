@@ -8,11 +8,19 @@ __attribute__((naked)) void jump(unsigned long addr) {
     );
 }
 
-slot_t current_slot(void) {
-    unsigned long here = (unsigned long)&current_slot;
+slot_t slot_current(void) {
+    unsigned long here = (unsigned long)&slot_current;
 
     if (here >= SLOT_A_START && here < SLOT_A_START + SLOT_SIZE) return SLOT_A;
     if (here >= SLOT_B_START && here < SLOT_B_START + SLOT_SIZE) return SLOT_B;
 
     return SLOT_UNKNOWN;
+}
+
+char *slot_name(slot_t slot) {
+    switch (slot) {
+        case SLOT_A: return "Slot A";
+        case SLOT_B: return "Slot B";
+        default: return "Slot unknown";
+    }
 }
