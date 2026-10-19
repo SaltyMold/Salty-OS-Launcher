@@ -23,11 +23,12 @@
 
 #define SLOT_SIZE 0x400000UL
 
+typedef enum { SLOT_A, SLOT_B, SLOT_UNKNOWN } slot_t;
+
 // Set the stack pointer and jump to the address
 __attribute__((naked)) void jump(unsigned long addr);
 
-typedef enum { SLOT_A, SLOT_B, SLOT_UNKNOWN } slot_t;
-
+// Return the current slot
 slot_t current_slot(void);
 
 #endif
