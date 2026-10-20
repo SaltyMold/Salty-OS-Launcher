@@ -3,6 +3,6 @@
 
 #include "../libs/eadk.h"
 
-void sleep(int ms, bool *quit);
+void sleep(int ms, bool *quit, eadk_key_t quit_key);
 
 #endif

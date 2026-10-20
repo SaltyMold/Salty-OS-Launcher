@@ -1,5 +1,6 @@
 #include "dfu_slot.h"
 
+
 // The slot itself (marker, capacity, model, size, data) is in dfu_slot_data.c,
 // compiled without LTO and linked last. See the layout described there.
 
@@ -11,7 +12,15 @@ typedef struct {
 
 extern const dfu_slot_t dfu_slot;
 
-uint32_t dfu_model(void) { return dfu_slot.size ? dfu_slot.model : 0; }
+info_model_t dfu_model(void) {
+    if (!dfu_slot.size) return INFO_MODEL_UNKNOWN;
+    switch (dfu_slot.model) {
+        case 110: return INFO_MODEL_N0110;
+        case 115: return INFO_MODEL_N0115;
+        case 120: return INFO_MODEL_N0120;
+        default:  return INFO_MODEL_UNKNOWN;
+    }
+}
 
 void dfu_keep(void) {
     __asm__ volatile("" : : "r"(&dfu_slot) : "memory");

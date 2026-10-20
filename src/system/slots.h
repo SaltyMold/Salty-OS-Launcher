@@ -23,6 +23,9 @@
 
 #define SLOT_SIZE 0x400000UL
 
+#define THEME_AREA 0x90270000u
+#define THEME_AREA_SIZE 0x180000u
+
 typedef enum { SLOT_A, SLOT_B, SLOT_UNKNOWN } slot_t;
 
 // Set the stack pointer and jump to the address
