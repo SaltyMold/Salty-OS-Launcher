@@ -15,16 +15,21 @@
 })
 
 // The firmware answers with a boolean in the low byte of r0.
-static flash_flash_status_t flash_status_from(uint32_t r0) {
+static flash_status_t flash_status_from(uint32_t r0) {
     return (r0 & 0xFF) ? FLASH_OK : FLASH_FAILED;
 }
 
-flash_flash_status_t flash_erase_sector(uint32_t addr) {
-    uint32_t sector = FIRST_64K_SECTOR + (addr - FLASH_BASE) / SECTOR_SIZE;
+flash_status_t flash_erase_sector(uint32_t addr) {
+    uint32_t sector = SECTOR_INDEX_OFFSET + (addr - FLASH_BASE) / SECTOR_SIZE;
     return flash_status_from(SVC(SVC_FLASH_ERASE_SECTOR, sector, 1, 0, 0));
 }
 
-flash_flash_status_t flash_write(uint32_t dst, const void *src, uint32_t len) {
+void flash_erase(uint32_t start, uint32_t end) {
+    for (uint32_t address = start; address < end; address += SECTOR_SIZE) flash_erase_sector(address);
+}
+
+
+flash_status_t flash_write(uint32_t dst, const void *src, uint32_t len) {
     const uint8_t *data = src;
     uint32_t end = dst + len;
     

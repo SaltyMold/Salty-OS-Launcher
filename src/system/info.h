@@ -1,8 +1,8 @@
 #ifndef INFO_H
 #define INFO_H
 
-#include "libs/eadk.h"
-#include "libs/storage.h"
+#include "../libs/eadk.h"
+#include "storage.h"
 
 #define SVC_FCC_ID 29
 

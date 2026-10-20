@@ -1,4 +1,3 @@
-#include "libs/eadk.h"
 #include "timing.h"
 
 // So you can quit during a msleep

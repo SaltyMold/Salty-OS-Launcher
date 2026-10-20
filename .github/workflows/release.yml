@@ -1,0 +1,66 @@
+name: Release the launcher with the latest Salty-OS (no rebuild)
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # every day: is there a new Salty-OS release?
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  USERLAND_REPO: SaltyMold/Salty-OS
+  MODELS: "n0110 n0115 n0120"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Latest Salty-OS release
+        id: userland
+        run: |
+          tag=$(gh release view --repo "$USERLAND_REPO" --json tagName -q .tagName)
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download the .dfu of each model into base/
+        if: steps.userland.outputs.new == 'true'
+        run: |
+          for m in $MODELS; do
+            gh release download "${{ steps.userland.outputs.tag }}" --repo "$USERLAND_REPO" \
+              --pattern "userland.onboarding.allow3rdparty.B.$m.dfu" --output "base/userland.onboarding.allow3rdparty.B.$m.dfu" --clobber
+          done
+          ls -l base
+
+      - name: Commit the new .dfu files
+        if: steps.userland.outputs.new == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add base/*.dfu
+          git diff --cached --quiet || git commit -m "Salty-OS ${{ steps.userland.outputs.tag }}"
+          git push
+
+      - name: Patch the base app with each userland (link.sh)
+        if: steps.userland.outputs.new == 'true'
+        run: |
+          for m in $MODELS; do
+            tools/link.sh "$m" "output/device/Salty-OS-Launcher-${{ steps.userland.outputs.tag }}-$m.nwa"
+          done
+          ls -l output/device
+
+      - name: Release
+        if: steps.userland.outputs.new == 'true'
+        run: |
+          gh release create "${{ steps.userland.outputs.tag }}" output/device/Salty-OS-Launcher-*.nwa \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "${{ steps.userland.outputs.tag }}" \
+            --notes "Launcher with the Salty-OS userland ${{ steps.userland.outputs.tag }}, one file per model."

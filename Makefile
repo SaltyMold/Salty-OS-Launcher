@@ -26,13 +26,15 @@ $(addprefix $(BUILD_DIR)/,$(addsuffix .o,$(basename $(1))))
 endef
 
 src = $(addprefix src/,\
-  libs/storage.c \
-  libs/lz4.c \
-  display.c \
-  flash.c \
-  timing.c \
-  info.c \
-  slots.c \
+  app/display.c \
+  app/timing.c \
+  system/storage.c \
+  system/flash.c \
+  system/info.c \
+  system/slots.c \
+  themes/themes_data.c \
+  dfu/dfu_slot.c \
+  dfu/dfu_slot_data.c \
   main.c \
 )
 
@@ -48,7 +50,11 @@ else
 src_simulator = $(src)
 endif
 
+# 1 638 400
+DFU_CAPACITY ?= 0x190000
+
 CFLAGS_DEVICE = -std=c99
+CFLAGS_DEVICE += -DDFU_CAPACITY=$(DFU_CAPACITY)
 CFLAGS_DEVICE += $(shell $(NWLINK) eadk-cflags-device)
 CFLAGS_DEVICE += -Os -Wall
 CFLAGS_DEVICE += -ggdb
@@ -60,7 +66,7 @@ LDFLAGS += --specs=nano.specs
 ifeq ($(LINK_GC),1)
 CFLAGS_DEVICE += -fdata-sections -ffunction-sections
 LDFLAGS += -Wl,-e,main -Wl,-u,eadk_app_name -Wl,-u,eadk_app_icon -Wl,-u,eadk_api_level
-LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Wl,-u,dfu_slot
 endif
 
 ifeq ($(LTO),1)
@@ -126,15 +132,18 @@ $(BUILD_DIR_SIMULATOR)/app.nwb: $(call object_for_dir,$(BUILD_DIR_SIMULATOR),$(s
 	@echo "LDSIMULATOR  $@"
 	$(Q) $(CXX_SIMULATOR) $(CFLAGS_SIMULATOR) $(LDFLAGS_SIMULATOR) $(call object_for_dir,$(BUILD_DIR_SIMULATOR),$(src_simulator)) -o $@
 
-$(BUILD_DIR_DEVICE)/src/libs/storage.o: src/libs/storage.c | $(BUILD_DIR_DEVICE)
+$(BUILD_DIR_DEVICE)/src/storage/storage.o: src/storage/storage.c | $(BUILD_DIR_DEVICE)
 	@echo "CC      $^"
 	$(Q) mkdir -p $(dir $@)
 	$(Q) $(CC) $(CFLAGS_DEVICE) -w -c $^ -o $@
 
-$(BUILD_DIR_SIMULATOR)/src/libs/storage.o: src/libs/storage.c | $(BUILD_DIR_SIMULATOR)
+$(BUILD_DIR_SIMULATOR)/src/storage/storage.o: src/storage/storage.c | $(BUILD_DIR_SIMULATOR)
 	@echo "CCSIMULATOR  $^"
 	$(Q) mkdir -p $(dir $@)
 	$(Q) $(CC_SIMULATOR) $(CFLAGS_SIMULATOR) -w -c $^ -o $@
+
+# The slot is built without LTO so that it can be linked last (see dfu_slot_data.c)
+%/dfu_slot_data.o: CFLAGS_DEVICE += -fno-lto
 
 $(addprefix $(BUILD_DIR_DEVICE)/,%.o): %.c | $(BUILD_DIR_DEVICE)
 	@echo "CC      $^"
