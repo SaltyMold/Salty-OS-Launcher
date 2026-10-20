@@ -2,7 +2,7 @@ name: Release the launcher with the latest Salty-OS (no rebuild)
 
 on:
   schedule:
-    - cron: "0 6 * * *" # every day: is there a new Salty-OS release?
+    - cron: "0 6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -63,4 +63,6 @@ jobs:
           gh release create "${{ steps.userland.outputs.tag }}" output/device/Salty-OS-Launcher-*.nwa \
             --repo "$GITHUB_REPOSITORY" \
             --title "${{ steps.userland.outputs.tag }}" \
-            --notes "Launcher with the Salty-OS userland ${{ steps.userland.outputs.tag }}, one file per model."
+            --notes "Launcher with the Salty-OS userland ${{ steps.userland.outputs.tag }}, one file per model.
+
+          Install it from https://my.numworks.com/apps"
